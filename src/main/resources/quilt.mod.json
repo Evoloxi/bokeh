@@ -19,19 +19,19 @@
 		},
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
+            "fabric-datagen": {
+                "adapter": "kotlin",
+                "value": "com.weevo.bokeh.datagen.DataGenEntryPoint"
+            },
 			"init": {
 				"adapter": "kotlin",
-				"value": "${group}.${name}.${mainClass}"
+				"value": "com.weevo.bokeh.Bokeh"
 			}
 		},
 		"depends": [
 			{
 				"id": "quilt_loader",
 				"versions": ">=${vLoader}"
-			},
-			{
-				"id": "quilted_fabric_api",
-				"versions": ">=${vQFAPI}-"
 			},
 			{
 				"id": "qkl",

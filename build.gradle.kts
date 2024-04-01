@@ -18,7 +18,7 @@ plugins {
 	`maven-publish`
 
 	// for some godforsaken reason you can't seem to access properties in `plugins`, so here and only here has constants.
-	id("org.jetbrains.kotlin.jvm").version("1.9.10")
+	id("org.jetbrains.kotlin.jvm").version("2.0.0-Beta5")
 	id("org.quiltmc.loom").version("1.+")
 }
 
@@ -34,22 +34,48 @@ loom {
 	mods {
 
 	}
+
+    // This adds a new gradle task that runs the datagen API: "gradlew runDatagen"
+    runs.register("datagen") {
+        inherit(runs.getByName("server"))
+        name = "Data Generation"
+        vmArg("-Dfabric-api.datagen")
+        vmArg("-Dfabric-api.datagen.output-dir=${file("src/main/generated")}")
+        vmArg("-Dfabric-api.datagen.modid=$id")
+        runDir = "build/datagen"
+    }
+    
 }
+
+// Add the generated resources to the main source set
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/generated")
+        }
+    }
+}
+
 
 dependencies {
 	val minecraftVer = getVer("minecraft")
 	minecraft("com.mojang:minecraft:$minecraftVer")
-	mappings("org.quiltmc:quilt-mappings:$minecraftVer+build.${getVer("mappings")}:intermediary-v2")
-
+	//mappings("org.quiltmc:quilt-mappings:$minecraftVer+build.${getVer("mappings")}:intermediary-v2")
+    
+    mappings(loom.layered {
+        officialMojangMappings()
+        mappings("org.quiltmc:quilt-mappings:$minecraftVer+build.${getVer("mappings")}:intermediary-v2")
+    })
+    
 	modImplementation("org.quiltmc:quilt-loader:${getVer("loader")}")
 	modImplementation("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${getVer("QFAPI")}+${getVer("FAPI")}-$minecraftVer")
 
 	val qklVer = getVer("QKL")
 	val ktVer = getVer("kotlin")
 	val flkVer = getVer("FLK")
-	modImplementation("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:$qklVer+kt.$ktVer+flk.$flkVer")
-	modImplementation("org.quiltmc.quilt-kotlin-libraries:core:$qklVer+kt.$ktVer+flk.$flkVer")
-	modImplementation("org.quiltmc.quilt-kotlin-libraries:library:$qklVer+kt.$ktVer+flk.$flkVer")
+	modImplementation("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:$qklVer+kt.1.9.22+flk.$flkVer")
+	modImplementation("org.quiltmc.quilt-kotlin-libraries:core:$qklVer+kt.1.9.22+flk.$flkVer")
+	modImplementation("org.quiltmc.quilt-kotlin-libraries:library:$qklVer+kt.1.9.22+flk.$flkVer")
 }
 
 tasks {
@@ -101,6 +127,21 @@ tasks {
 			)
 		}
 	}
+    /*
+loom {
+    runs {
+		// This adds a new gradle task that runs the datagen API: "gradlew runDatagen"
+		datagen {
+			inherit server
+			name "Data Generation"
+			vmArg "-Dfabric-api.datagen"
+			vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+			vmArg "-Dfabric-api.datagen.modid=tutorialmod"
+ 
+			runDir "build/datagen"
+		}
+	}
+}*/
 
 	javadoc {
 		options.encoding = "UTF-8"
